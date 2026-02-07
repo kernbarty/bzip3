@@ -1,4 +1,4 @@
-AC_PREREQ([2.68])
+AC_PREREQ([2.69])
 AC_INIT([bzip3], [m4_esyscmd(build-aux/git-version-gen .tarball-version)], [https://github.com/iczelia/bzip3])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([foreign subdir-objects tar-ustar dist-bzip2 dist-xz dist-zip color-tests])
