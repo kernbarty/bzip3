@@ -17,7 +17,9 @@ else()
   set(BZIP3_ENABLE_PTHREAD_DEFAULT ON)
 endif()
 option(BZIP3_ENABLE_PTHREAD "Enable use of pthread library" "${BZIP3_ENABLE_PTHREAD_DEFAULT}")
-option(BZIP3_ENABLE_ARCH_NATIVE "Enable CPU-specific optimizations" OFF)
+# Enable native arch optimizations by default for personal builds since I always
+# build and run on the same machine.
+option(BZIP3_ENABLE_ARCH_NATIVE "Enable CPU-specific optimizations" ON)
 option(BZIP3_ENABLE_STATIC_EXE "Enable static builds of the executable" OFF)
 
 include(CheckCCompilerFlag)
@@ -90,72 +92,4 @@ if(BUILD_SHARED_LIBS)
 endif()
 install(
   TARGETS bz3
-  EXPORT ${CMAKE_PROJECT_NAME}-targets
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(
-  EXPORT ${CMAKE_PROJECT_NAME}-targets
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME}"
-  NAMESPACE ${CMAKE_PROJECT_NAME}::)
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_PROJECT_NAME}-config.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-config.cmake"
-  @ONLY)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}-config.cmake"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${CMAKE_PROJECT_NAME}")
-if(BZIP3_BUILD_APPS)
-  add_executable(bzip3)
-  target_sources(bzip3 PRIVATE src/main.c)
-  if(BZIP3_ENABLE_STATIC_EXE)
-    if(BUILD_SHARED_LIBS)
-      message(
-        FATAL_ERROR
-          "libbz3 is not built as a static library, disable `BUILD_SHARED_LIBS`"
-      )
-    endif()
-    check_c_compiler_flag(-static CC_SUPPORT_STATIC_FLAG)
-    if(CC_SUPPORT_STATIC_FLAG)
-      target_link_options(bzip3 PRIVATE -static)
-    else()
-      message(
-        FATAL_ERROR
-          "Compiler does not support static linking, disable `BZIP3_ENABLE_STATIC_EXE`"
-      )
-    endif()
-  endif()
-  target_link_libraries(bzip3 PRIVATE bz3)
-  install(TARGETS bzip3 RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-  set(BZIP3_APP_SCRIPTS bunzip3 bz3cat bz3grep bz3less bz3more bz3most)
-  install(PROGRAMS ${BZIP3_APP_SCRIPTS} DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-  if(UNIX)
-    set(BZIP3_MANS
-        bunzip3.1
-        bz3cat.1
-        bz3grep.1
-        bz3less.1
-        bz3more.1
-        bz3most.1
-        bzip3.1)
-    foreach(BZIP3_MAN ${BZIP3_MANS})
-      if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${BZIP3_MAN}.in)
-        string(TIMESTAMP MAN_DATE "%d %B %Y" UTC)
-        set(TRANSFORMED_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
-        set(MAN_DATE ${MAN_DATE})
-        set(VERSION ${PROJECT_VERSION})
-        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${BZIP3_MAN}.in
-		       ${CMAKE_CURRENT_BINARY_DIR}/${BZIP3_MAN}
-                       @ONLY)
-      else()
-        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${BZIP3_MAN}
-		       ${CMAKE_CURRENT_BINARY_DIR}/${BZIP3_MAN}
-                       COPYONLY)
-      endif()
-      install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${BZIP3_MAN}
-              DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
-    endforeach()
-  endif()
-endif()
+  EXPORT ${CMAK
