@@ -29,6 +29,11 @@ extern "C" {
 #define BZ3_MIN_BLOCK_SIZE (65 * 1024)
 #define BZ3_MAX_BLOCK_SIZE (511 * 1024 * 1024)
 
+/* A sensible default block size for general-purpose use (8 MiB).
+ * Balances compression ratio and memory usage reasonably well for
+ * most files I work with. Increase for large, highly compressible data. */
+#define BZ3_DEFAULT_BLOCK_SIZE (8 * 1024 * 1024)
+
 /* Error codes returned by bzip3 functions. */
 #define BZ3_OK             0
 #define BZ3_ERR_OUT_OF_BOUNDS -1
@@ -50,6 +55,7 @@ struct bz3_state;
  *
  * @param block_size  Compression block size in bytes. Must be between
  *                    BZ3_MIN_BLOCK_SIZE and BZ3_MAX_BLOCK_SIZE.
+ *                    Use BZ3_DEFAULT_BLOCK_SIZE if unsure.
  * @return Pointer to the newly allocated state, or NULL on failure.
  */
 struct bz3_state * bz3_new(int32_t block_size);
@@ -94,37 +100,4 @@ size_t bz3_bound(size_t block_size);
  * @param state       Initialised bzip3 state.
  * @param buffer      Working buffer of at least bz3_bound(block_size) bytes.
  *                    On entry the first `in_size` bytes contain the input.
- *                    On success the compressed data is written here.
- * @param in_size     Number of input bytes (must be <= block_size).
- * @param out_size    Set to the number of compressed bytes on success.
- * @return BZ3_OK on success, or a negative BZ3_ERR_* code on failure.
- */
-int32_t bz3_compress_block(struct bz3_state * state, uint8_t * buffer,
-                            int32_t in_size, int32_t * out_size);
-
-/**
- * @brief Decompress a single block of data.
- *
- * @param state       Initialised bzip3 state.
- * @param buffer      Working buffer of at least bz3_bound(block_size) bytes.
- *                    On entry the first `in_size` bytes contain compressed data.
- *                    On success the decompressed data is written here.
- * @param in_size     Number of compressed input bytes.
- * @param orig_size   Expected size of the decompressed output.
- * @return BZ3_OK on success, or a negative BZ3_ERR_* code on failure.
- */
-int32_t bz3_decompress_block(struct bz3_state * state, uint8_t * buffer,
-                              int32_t in_size, int32_t orig_size);
-
-/**
- * @brief Return the version string of the bzip3 library.
- *
- * @return Pointer to a static null-terminated version string.
- */
-const char * bz3_version(void);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* BZIP3_H */
+ *                    On success the comp
