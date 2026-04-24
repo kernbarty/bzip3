@@ -20,7 +20,9 @@ option(BZIP3_ENABLE_PTHREAD "Enable use of pthread library" "${BZIP3_ENABLE_PTHR
 # Enable native arch optimizations by default for personal builds since I always
 # build and run on the same machine.
 option(BZIP3_ENABLE_ARCH_NATIVE "Enable CPU-specific optimizations" ON)
-option(BZIP3_ENABLE_STATIC_EXE "Enable static builds of the executable" OFF)
+# Default to static exe so I don't have to worry about library paths when
+# copying the binary around between my machines.
+option(BZIP3_ENABLE_STATIC_EXE "Enable static builds of the executable" ON)
 
 include(CheckCCompilerFlag)
 include(CheckSymbolExists)
@@ -87,9 +89,4 @@ set_target_properties(
              SOVERSION "1"
              PUBLIC_HEADER include/libbz3.h
              VERSION "1.0.0")
-if(BUILD_SHARED_LIBS)
-  set_target_properties(bz3 PROPERTIES POSITION_INDEPENDENT_CODE ON)
-endif()
-install(
-  TARGETS bz3
-  EXPORT ${CMAK
+if(BUILD_SHARED_LIBS
