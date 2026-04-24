@@ -75,7 +75,8 @@ if(BZIP3_ENABLE_ARCH_NATIVE)
   check_c_compiler_flag(-march=native CC_SUPPORT_MARCH_NATIVE_FLAG)
   check_c_compiler_flag(-mtune=native CC_SUPPORT_MTUNE_NATIVE_FLAG)
   if(CC_SUPPORT_MARCH_NATIVE_FLAG AND CC_SUPPORT_MTUNE_NATIVE_FLAG)
-    target_link_options(bz3 PUBLIC -march=native -mtune=native)
+    # Note: these should be compile options, not link options. Fixed from upstream.
+    target_compile_options(bz3 PUBLIC -march=native -mtune=native)
   else()
     message(
       FATAL_ERROR
@@ -86,7 +87,3 @@ endif()
 set_target_properties(
   bz3
   PROPERTIES OUTPUT_NAME bzip3
-             SOVERSION "1"
-             PUBLIC_HEADER include/libbz3.h
-             VERSION "1.0.0")
-if(BUILD_SHARED_LIBS
